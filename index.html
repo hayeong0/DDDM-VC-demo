@@ -1,1061 +1,251 @@
+
 <!DOCTYPE html>
-DDDM-VC
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-          <style type="text/css">
-                 a:link { color: black; text-decoration: none;}
-                 a:visited { color: black; text-decoration: none;}
-                 a:hover { color: blue; text-decoration: underline;}
-             #player {width: 190px;}
-          </style>
-          <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no", user-scalable="yes">
-          <meta name="description" content="DDDM-VC audio demo page">
-          <meta name="autor" content="dddm-vc">
-          <title>DDDM-VC Demo</title>
-          
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js" crossorigin="anonymous"></script>
-          <link href="css/styles.css" rel="stylesheet">
-          <link rel="stylesheet" href="css/heading.css">
-          <link rel="stylesheet" href="css/body.css">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css" integrity="sha512-3q8fi8M0VS+X/3n64Ndpp6Bit7oXSiyCnzmlx6IDBLGlY5euFySyJ46RUlqIVs0DPCGOypqP8IRk/EyPvU28mQ==" crossorigin="anonymous" />
-      </head>
-      #263959
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DDDM-VC project page">
+    <meta name="keywords" content="DDDMs, Diffusion models, Voice Conversion, Text-To-Speech, Audio Mixing">
+    <title>DDDM-VC</title>
 
-    <body id="page-top">
-        <nav class="navbar navbar-expand-lg bg-secondary fixed-top" id="mainNav">
-            <div class="container"><a class="navbar-brand js-scroll-trigger" href="#page-top">DDDM-VC</a>
-                <button class="navbar-toggler navbar-toggler-right font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">Menu <i class="fas fa-bars"></i></button>
-                <div class="collapse navbar-collapse" id="navbarResponsive">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#abstract">Abstract</a>
-                        <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#oneshot">One-shot Speaker Adaptation</a></li>
-                        <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#m2m">Many-to-Many VC</a></li>
-                        <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#zeroshot">Zero-shot VC</a></li>
-                        <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#zero_crosslingual">Zero-shot Cross-lingual VC</a></li>
-                        <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#ablation">Ablation Study</a></li>
-                        <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#control">Additional Experiments</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        <header class="masthead bg-white text-left"> 
-            <div class="container d-flex align-items-center flex-column">
-                <h1 class="masthead-heading mb-0">DDDM-VC: Decoupled Denoising Diffusion Models with Disentangled Representation and Prior Mixup for Verified Robust Voice Conversion</h1>
-		            <p class="pre-wrap lead">&nbsp;</p>
-                <img src="img/dddm_vc.png" alt="main" style="max-width: 100%; height: auto;"> 
-                <em>Overall framework of DDDM-VC</em><p></p><br>
-                <table width=100%>
-                  <tr>
-                     <h4><center> Reverse process of each attribute denoiser </center></h4><br>
-                     <td width=50%><img alt="ftr" src="img/ftr_dec.gif" style="max-width: 100%; height: auto;">
-                     <em><p align="center">Filter attribute denoising process </p></em></td>
-                     <td width=50%><img alt="src" src="img/src_dec.gif" style="max-width: 100%; height: auto;">
-                     <em><p align="center">Source attribute denoising process </p></em></td>
-                  </tr>
-               </table>
-            </div>
-        </header>
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js" type="text/javascript"></script>
+    <script src="js/hover.zoom.js" type="text/javascript"></script>
+    <script src="js/hover.zoom.conf.js" type="text/javascript""></script>
 
-        <section class="page-section alert-secondary portfolio" id="abstract">
-            <div class="container">
-                <div class="text-center">
-                    <h2 class="page-section-heading text-secondary mb-0 d-inline-block">Abstract</h2>
-                </div>
-                <div class="divider-custom">
-                    <div class="divider-custom"></div>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-lg-12 ml-auto">
-                      <p class="pre-wrap lead">Diffusion-based generative models have exhibited powerful generative performance in recent years. However, as many attributes exist in the data distribution and owing to several limitations of sharing the model parameters across all levels of the generation process, it remains challenging to control specific styles for each attribute. To address the above problem, this paper presents decoupled denoising diffusion models (DDDMs) with disentangled representations, which can control the style for each attribute in generative models. We apply DDDMs to voice conversion (VC) tasks to address the challenges of disentangling and controlling each speech attribute (e.g., linguistic information, intonation, and timbre). First, we use a self-supervised representation to disentangle the speech representation. Subsequently, the DDDMs are applied to resynthesize the speech from the disentangled representations for denoising with respect to each attribute. Moreover, we also propose the prior mixup for robust voice style transfer, which uses the converted representation of the mixed style as a prior distribution for the diffusion models. The experimental results reveal that our method outperforms publicly available VC models. Furthermore, we show that our method provides robust generative performance regardless of the model size. </p>
-                        <p class="pre-wrap lead">&nbsp;</p>
-                        <p class="pre-wrap lead">We compare DDDM-VC with several Voice Conversion models as:</p>
-                        <p class="pre-wrap lead">  1. AutoVC [K. Qian et al., 2019] : <a href="https://auspicious3000.github.io/autovc-demo/">[Official Demo page]</a></p>
-                        <p class="pre-wrap lead">  2. VoiceMixer [S.-H. Lee et al., 2021]: <a href="https://anonymous-speech.github.io/voicemixer/index.html">[Official Demo page]</a></p>
-                        <p class="pre-wrap lead">  3. Speech Resynthesis [A. Polyak et al., 2021]: <a href="https://speechbot.github.io/resynthesis/">[Official Demo page]</a></p>
-                        <p class="pre-wrap lead">  4. DiffVC [V. Popov et al., 2022]:  <a href="https://diffvc-fast-ml-solver.github.io/">[Official Demo page]</a></p>
-	                      <p class="pre-wrap lead">&nbsp;</p>
-	                    </div>
-                    </div>         
-                </div>
+    <link rel="stylesheet" href="css/bulma.min.css">
+    <link rel="stylesheet" href="css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <!-- <script defer src="js/fontawesome.all.min.js" type="text/javascript"></script> -->
+    <script defer src="js/fontawesome.all.min.js"></script>
+  </head>
+  
+  <body>
+    <div id="white">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12  centered">
+            <span style="font-weight:bold; font-size:40px">
+              DDDM-VC: Decoupled Denoising Diffusion Models with Disentangled Representation and Prior Mixup for Verified Robust Voice Conversion
+            </span><br>
+  
+        <div class="row">
+          <div class="col-lg-1 ">
+            <center></center>
             </div>
-        </section>
-        <style>
-          tr, td {
-            text-align:center;
-          }
-          tr {
-            font-size: 15pt;
-          }
-          td {
-            font-size: 13pt;
-          }
-        </style>
+        </div><br>
+
+        <div class="row">
+          <div class="col-lg-1 col-lg-offset-2 centered">
+            <center></center>
+          </div>
+        </div><br>
+
+        <div class="row">
+          <div class="col-lg-4 col-lg-offset-4 centered">
+            <span class="link-block">
+              <a href="" class="mybutton button">
+              <span class="gradient"></span>
+              <span class="icon"><i class="fab fa-github"></i>
+              <span>Code</span>
+              </a>
+            </span>
+
+            <span class="link-block">
+              <a href="https://dddm-vc.github.io/demo/" class="mybutton button">
+              <span class="gradient"></span>
+              <span class="icon"><i class="fa fa-headphones" aria-hidden="true"></i>
+              <span>Audio Demo</span>
+              </a>
+            </span>
+        </div></div>
+      
+      <div class="row"><br>
+        <strong>🎧 Our audio samples are available at above Audio Demo site.<br></strong>
+          🖥️ Source code and model checkpoint will be released after the paper decision. 
         
-       
-        <!-- <section class="page-section text-white mb-0" id="oneshot" style="background-color:#6d819c" >	 -->
-        <section class="page-section bg-info text-white mb-0" id="oneshot">	
-            <div class="container">
-              <div class="text-center">
-                <h2 class="page-section-heading d-inline-block text-white">One-shot Speaker Adaptation </h2>
-                <p class="pre-wrap lead"> Real-world Dataset</p>
-              </div>
-  
-              <div class="divider-custom divider-light">
-              </div>
-          
-              <div class="row">
-                  <div class="col-lg-12 ml-auto">
-                    <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                      <thead><tr>
-                          <th style="width: 22%"> Source Speaker </th>
-                          <th style="width: 22%"> Target Speaker</th>
-                          <th style="width: 23%"> Converted</th>
-                          <th style="width: 22%">         </th>
-                          <th style="width: 1%">         </th>
-                      </tr></thead>    
-                      <tbody>
-                        <tr>
-                          <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=SLEvWp8JS1c", style="color: blue">Emma Watson <br> (03:30 ~ 03:40)</a> </p>
-                            <audio id="player" controls ><source src="audio/oneshot/gt/emma-watson-find.wav " type="audio/wav"></audio>
-                          </td>
-                          <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=NB2CNr692RE", style="color: blue">Gollum <br>(00:30 ~ 00:40)</a> </p>
-                            <audio id="player" controls><source src="audio/oneshot/gt/gollum-and-smeagol.wav " type="audio/wav"></audio>
-                          </td>
+      </div>
+      <br>
 
-                          <td>
-                          <p><strong>DDDM-VC-Fine-tuning<br> (One-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/oneshot/emma-watson-find_to_gollum-and-smeagol.wav" type="audio/wav"></audio>
-                          </td>
-                          <td>
-                          <p><strong>DDDM-VC <br>(Zero-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/zero/emma-watson-find_to_gollum-and-smeagol.wav" type="audio/wav"></audio>
-                          </td>
-                        </tr>
-                     </tbody>
-                    </table>
-                  </div>
-                </div> 
-
-              <div class="row">
-                  <div class="col-lg-12 ml-auto">
-                    <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                      <thead><tr>
-                          <th style="width: 22%">Source Speaker </th>
-                          <th style="width: 22%">Target Speaker</th>
-                          <th style="width: 23%"> Converted</th>
-                          <th style="width: 22%">         </th>
-                          <th style="width: 1%">         </th>
-                      </tr></thead>    
-                      <tbody>
-                        <tr>
-                          <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=j0PDGp1hL4w", style="color: blue">Glados <br>(00:00 ~ 00:10)</a></p>
-                            <audio id="player" controls ><source src="audio/oneshot/gt/glados-speech-part-1.wav " type="audio/wav"></audio>
-                          </td>
-                          <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=7XO7kVaEgpM", style="color: blue">Benedict  Cumberbatch <br>(05:00 ~ 05:10)</a> </p>
-                            <audio id="player" controls><source src="audio/oneshot/gt/english-speech-benedict-cumberbatch.wav " type="audio/wav"></audio>
-                          </td>
-                          <td>
-                          <p><strong>DDDM-VC-Fine-tuning<br> (One-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/oneshot/glados-speech-part-1_to_english-speech-benedict-cumberbatch.wav" type="audio/wav"></audio>
-                          </td>
-                          <td>
-                          <p><strong>DDDM-VC <br>(Zero-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/zero/glados-speech-part-1_to_english-speech-benedict-cumberbatch.wav" type="audio/wav"></audio>
-                          </td>
-                        </tr>
-                        <tr><td></td>
-                          <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=_BUWltK_KLY", style="color: blue">Tom holland <br>(00:45 ~ 00:55)</a> </p>
-                            <audio id="player" controls><source src="audio/oneshot/gt/tom-holland-exclusive-english-speech.wav " type="audio/wav"></audio>
-                          </td>
-                          <td>
-                          <p><strong>DDDM-VC-Fine-tuning<br> (One-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/oneshot/glados-speech-part-1_to_tom-holland-exclusive-english-speech.wav" type="audio/wav"></audio>
-                          </td>
-                          <td>
-                          <p><strong>DDDM-VC <br>(Zero-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/zero/glados-speech-part-1_to_tom-holland-exclusive-english-speech.wav" type="audio/wav"></audio>
-                          </td>
-                        </tr>
-                     </tbody>
-                    </table>
-                  </div>
-                </div> 
-              <div class="row">
-                  <div class="col-lg-12 ml-auto">
-                    <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                      <thead><tr>
-                          <th style="width: 22%">Source Speaker </th>
-                          <th style="width: 22%">Target Speaker</th>
-                          <th style="width: 23%"> Converted</th>
-                          <th style="width: 22%">         </th>
-                          <th style="width: 1%">         </th>
-                      </tr></thead>    
-                      <tbody>
-                        <tr>
-                          <td rowspan="1" style="color: blue; vertical-align: top;"><p> 226_007 <br> (VCTK) </a></p>
-                            <audio id="player" controls ><source src="audio/oneshot/gt/p226_007.wav " type="audio/wav"></audio>
-                          </td>
-                          <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=7XO7kVaEgpM", style="color: blue">Benedict  Cumberbatch <br>(05:00 ~ 05:10)</a> </p>
-                            <audio id="player" controls><source src="audio/oneshot/gt/english-speech-benedict-cumberbatch.wav " type="audio/wav"></audio>
-                          </td>
-                          
-                          <td>
-                          <p><strong>DDDM-VC-Fine-tuning<br> (One-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/oneshot/p226_007_to_english-speech-benedict-cumberbatch.wav" type="audio/wav"></audio>
-                          </td>
-                          <td>
-                          <p><strong>DDDM-VC <br>(Zero-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/zero/p226_007_to_english-speech-benedict-cumberbatch.wav" type="audio/wav"></audio>
-                          </td>
-                          </tr>
-                          <tr>
-                          <td></td>
-                            <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=SLEvWp8JS1c", style="color: blue">Emma Watson <br> (03:30 ~ 03:40)</a> </p>
-                              <audio id="player" controls ><source src="audio/oneshot/gt/emma-watson-find.wav " type="audio/wav"></audio>
-                          </td>
-                          <td>
-                          <p><strong>DDDM-VC-Fine-tuning<br> (One-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/oneshot/p226_007_to_emma-watson-find.wav" type="audio/wav"></audio>
-                          </td>
-                          <td>
-                          <p><strong>DDDM-VC <br>(Zero-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/zero/p226_007_to_emma-watson-find.wav" type="audio/wav"></audio>
-                          </td>
-                          </tr>
-                          <tr>
-                          <td></td>
-                            <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=_BUWltK_KLY", style="color: blue">Tom holland <br>(00:45 ~ 00:55)</a> </p>
-                              <audio id="player" controls><source src="audio/oneshot/gt/tom-holland-exclusive-english-speech.wav " type="audio/wav"></audio>
-                            </td>
-                          <td>
-                          <p><strong>DDDM-VC-Fine-tuning<br> (One-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/oneshot/p226_007_to_tom-holland-exclusive-english-speech.wav" type="audio/wav"></audio>
-                          </td>
-                          <td>
-                          <p><strong>DDDM-VC <br>(Zero-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/zero/p226_007_to_tom-holland-exclusive-english-speech.wav" type="audio/wav"></audio>
-                          </td>
-                        </tr>
-                        <tr>
-                        <td></td>
-                          <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=NB2CNr692RE", style="color: blue">Gollum <br>(00:30 ~ 00:40)</a> </p>
-                            <audio id="player" controls><source src="audio/oneshot/gt/gollum-and-smeagol.wav " type="audio/wav"></audio>
-                        </td>
-                        <td>
-                        <p><strong>DDDM-VC-Fine-tuning<br> (One-shot, 30 iter.) </strong></p>
-                          <audio id="player" controls><source src="audio/oneshot/oneshot/p226_007_to_gollum-and-smeagol.wav" type="audio/wav"></audio>
-                        </td>
-                        <td>
-                        <p><strong>DDDM-VC <br>(Zero-shot, 30 iter.) </strong></p>
-                          <audio id="player" controls><source src="audio/oneshot/zero/p226_007_to_gollum-and-smeagol.wav" type="audio/wav"></audio>
-                        </td>
-                        </tr>
-                        <tr>
-                        <td></td>
-                        <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=j0PDGp1hL4w", style="color: blue">Glados <br>(00:00 ~ 00:10)</a></p>
-                            <audio id="player" controls ><source src="audio/oneshot/gt/glados-speech-part-1.wav " type="audio/wav"></audio>
-                          </td>
-                        <td>
-                        <p><strong>DDDM-VC-Fine-tuning<br> (One-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/oneshot/p226_007_to_glados-speech-part-1.wav" type="audio/wav"></audio>
-                        </td>
-                        <td>
-                          <p><strong>DDDM-VC <br>(Zero-shot, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/oneshot/zero/p226_007_to_glados-speech-part-1.wav" type="audio/wav"></audio>
-                        </td>
-                        </tr>
-                        <tr>
-                        <td></td>
-                        <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=9HNuti1Kt1o?start=4&end=14", style="color: blue">Heung-min Son <br> (00:04 ~ 00:14)</a></p>
-                            <audio id="player" controls ><source src="audio/oneshot/gt/goalscorer-son.wav " type="audio/wav"></audio>
-                          </td>
-                        <td>
-                        <p><strong>DDDM-VC-Fine-tuning<br> (One-shot, 30 iter.) </strong></p>
-                          <audio id="player" controls><source src="audio/oneshot/oneshot/p226_007_to_goalscorer-son.wav" type="audio/wav"></audio>
-                        </td>
-                        <td>
-                        <p><strong>DDDM-VC <br>(Zero-shot, 30 iter.) </strong></p>
-                          <audio id="player" controls><source src="audio/oneshot/zero/p226_007_to_goalscorer-son.wav" type="audio/wav"></audio>
-                        </td>
-                        </tr>
-                        <tr>
-                        <td></td>
-                        <td rowspan="1" style="vertical-align: top;"><p> <a href="https://www.youtube.com/watch?v=UF8uR6Z6KLc", style="color: blue">Steve Jobs <br> (00:55 ~ 01:05)</a></p>
-                          <audio id="player" controls ><source src="audio/oneshot/gt/steve-jobs-2005.wav " type="audio/wav"></audio>
-                        </td>
-                        <td>
-                        <p><strong>DDDM-VC-Fine-tuning<br> (One-shot, 30 iter.) </strong></p>
-                          <audio id="player" controls><source src="audio/oneshot/oneshot/p226_007_to_steve-jobs-2005.wav" type="audio/wav"></audio>
-                        </td>
-                        <td>
-                        <p><strong>DDDM-VC <br>(Zero-shot, 30 iter.) </strong></p>
-                          <audio id="player" controls><source src="audio/oneshot/zero/p226_007_to_steve-jobs-2005.wav" type="audio/wav"></audio>
-                        </td>
-                      </tr>
-                     </tbody>
-                    </table>
-                  </div>
-                </div> 
-            </div>
-        </section>
-
-        <section class="page-section bg-primary text-white mb-0" id="m2m">
-            <div class="container">
-              <div class="text-center">
-                <h2 class="page-section-heading d-inline-block text-white">Many-to-Many Voice Conversion (LibriTTS)</h2>
-                <p class="pre-wrap lead">All speakers are seen during training</p>
-              </div>
-  
-              <div class="divider-custom divider-light">
-              </div>
-              <div class="row">
-                  <div class="col-lg-12 ml-auto">
-                    <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                      <thead><tr>
-                        <th style="width:8%">Source Speaker</th>
-                        <th style="width:8%">Target Speaker</th>
-                        <th style="width: 23%"> Converted</th>
-                        <th style="width: 22%">         </th>
-                        <th style="width: 1%">         </th>
-                      </tr></thead>
-
-                      <tbody>
-                        <tr>
-                          <td rowspan="4" style="vertical-align: top;"><p> GT (1571) </p>
-                            <audio id="player" controls ><source src="audio/m2m/GT_src_1.wav" type="audio/wav"></audio>
-                          </td>
-                          <td rowspan="4" style="vertical-align: top;"><p>  GT (3526) </p>
-                            <audio id="player" controls><source src="audio/m2m/GT_target_1.wav" type="audio/wav"></audio>
-                          </td>
-                       
-                          <td><p>&nbsp; AutoVC</p>
-                            <audio id="player" controls><source src="audio/m2m/autovc_seen_1.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>&nbsp; VoiceMixer</p>
-                            <audio id="player" controls><source src="audio/m2m/voicemixer_1.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>Speech Resynthesis</p>
-                            <audio id="player" controls><source src="audio/m2m/sr_seen_1.wav" type="audio/wav"></audio>
-                          </td>
-                        </tr>
-                        
-                        <!-- <tr> 
-                          <td rowspan="3" style="vertical-align: top;"><p>&nbsp; GT (1571;  vocoded) </p>
-                            <audio id="player" controls ><source src="audio/m2m/GT_vocoded_src_1.wav" type="audio/wav"></audio>
-                          </td>
-                          <td rowspan="3" style="vertical-align: top;"><p>&nbsp; GT (3526;  vocoded) </p>
-                            <audio id="player" controls><source src="audio/m2m/GT_vocoded_target_1.wav" type="audio/wav"></audio>
-                          </td>
-                        </tr> -->
-
-                        <tr>
-                          <td><p>DiffVC-6</p>
-                            <audio id="player" controls><source src="audio/m2m/diffvc_seen_6_1.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>DiffVC-30</p>
-                            <audio id="player" controls><source src="audio/m2m/diffvc_seen_30_1.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>
-                        <tr>
-                          <td><p><strong>DDDM-VC <br> (Small, 6 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/m2m/dddmvc_small_6_1.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p><strong>DDDM-VC <br> (Small, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/m2m/dddmvc_small_30_1.wav" type="audio/wav"></audio>
-                            </td><td></td>
-                        </tr>
-                        <tr>
-                          <td><p><strong>DDDM-VC <br> (Base, 6 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/m2m/dddmvc_seen_6_1.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p><strong>DDDM-VC <br> (Base, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/m2m/dddmvc_seen_30_1.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>
-                      </tbody>
-
-                      <tbody>
-                        <tr>
-                          <td rowspan="4" style="vertical-align: top;"><p>&nbsp;GT (3699) </p>
-                            <audio id="player" controls ><source src="audio/m2m/GT_src_3.wav " type="audio/wav"></audio>
-                          </td>
-                          <td rowspan="4" style="vertical-align: top;"><p>&nbsp;GT (374) </p>
-                            <audio id="player" controls><source src="audio/m2m/GT_target_3.wav" type="audio/wav"></audio>
-                          </td>
-
-                          <td><p>&nbsp;AutoVC</p>
-                            <audio id="player" controls><source src="audio/m2m/autovc_seen_3.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>&nbsp;VoiceMixer</p>
-                            <audio id="player" controls><source src="audio/m2m/voicemixer_3.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>&nbsp;Speech Resynthesis</p>
-                            <audio id="player" controls><source src="audio/m2m/sr_seen_3.wav" type="audio/wav"></audio>
-                          </td>
-                        </tr>
-                        
-                        <!-- <tr> 
-                          <td rowspan="3" style="vertical-align: top;"><p>&nbsp;GT (3699; vocoded) </p>
-                            <audio id="player" controls ><source src="audio/m2m/GT_vocoded_src_3.wav" type="audio/wav"></audio>
-                          </td>
-                          <td rowspan="3" style="vertical-align: top;"><p>&nbsp;GT (374; vocoded) </p>
-                            <audio id="player" controls><source src="audio/m2m/GT_vocoded_target_3.wav" type="audio/wav"></audio>
-                          </td>
-                        </tr> -->
-
-                        <tr>
-                          <td><p>&nbsp;DiffVC-6</p>
-                            <audio id="player" controls><source src="audio/m2m/diffvc_seen_6_3.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>&nbsp;DiffVC-30</p>
-                            <audio id="player" controls><source src="audio/m2m/diffvc_seen_30_3.wav" type="audio/wav"></audio>
-                            </td><td></td>
-                        </tr>
-                        <tr>
-                          <td><p><strong>DDDM-VC <br> (Small, 6 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/m2m/dddmvc_small_6_3.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p><strong>DDDM-VC <br> (Small, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/m2m/dddmvc_small_30_3.wav" type="audio/wav"></audio>
-                            </td><td></td>
-                        </tr>
-                        <tr>
-                          <td><p><strong>DDDM-VC <br> (Base, 6 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/m2m/dddmvc_seen_6_3.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p><strong>DDDM-VC <br> (Base, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/m2m/dddmvc_seen_30_3.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div> 
-            </div>
-        </section>
-
-        <section class="page-section bg-info text-white mb-0" id="zeroshot">
-          <div class="container">
-            <div class="text-center">
-              <h2 class="page-section-heading d-inline-block">Zero-shot Voice Conversion (VCTK)</h2>
-              <p class="pre-wrap lead">All speakers are unseen during training</p>
-            </div>
-
-            <div class="divider-custom divider-light">
-              </div>
-              <div class="row">
-                  <div class="col-lg-12 ml-auto">
-                    <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                      <thead><tr>
-                        <th style="width:8%">Source Speaker</th>
-                        <th style="width:8%">Target Speaker</th>
-                        <th style="width: 23%"> Converted</th>
-                        <th style="width: 22%">         </th>
-                        <th style="width: 1%">         </th>
-                      </tr></thead>
-                      
-                      <tbody>
-                        <tr>
-                          <td rowspan="6" style="vertical-align: top;"><p> GT <br> p227 (male) </p>
-                            <audio id="player" controls ><source src="audio/zeroshot/sample1/GT_src_p227_013.wav " type="audio/wav"></audio>
-                          </td>
-                          <td rowspan="6" style="vertical-align: top;"><p> GT <br> p229 (female) </p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/GT_tar_p229_005.wav" type="audio/wav"></audio>
-                          </td>
-
-                          <td><p>AutoVC<br><br></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/autovc_p227_013_to_p229_005.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>VoiceMixer<br><br></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/vm_p227_013_to_p229_005.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>Speech Resynthesis<br><br></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/SR_p227_013_to_p229_005.wav" type="audio/wav"></audio>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><p>DiffVC <br> (6 iter.) </p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/diffvc6_p227_013_to_p229_005.wav" type="audio/wav"></audio>
-                          </td>  
-                          <td><p>DiffVC <br> (30 iter.) </p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/diffvc30_p227_013_to_p229_005.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>
-                        <tr>
-                          <td><p><strong>DDDM-VC <br> (Small, 6 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/dddmvc_s_6.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p><strong>DDDM-VC <br> (Small, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/dddmvc_s_30.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>
-                        <tr>
-                          <td><p><strong>DDDM-VC <br> (Base, 6 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/dddmvc_b_6.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p><strong>DDDM-VC <br> (Base, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/dddmvc_b_30.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>
-                        <tr>
-                          <td><p><strong>DDDM-VC <br> (Fine-tuning, 6 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/dddmvc_ft_6.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p><strong>DDDM-VC <br> (Fine-tuning, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample1/dddmvc_ft_30.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>                  
-                      </tbody>
-
-                      <tbody>
-                        <tr>
-                          <td rowspan="6" style="vertical-align: top;"><p> GT <br> p236 (female) </p>
-                            <audio id="player" controls ><source src="audio/zeroshot/sample2/GT_src_p236_004.wav " type="audio/wav"></audio>
-                          </td>
-                          <td rowspan="6" style="vertical-align: top;"><p> GT <br> p226 (male) </p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/GT_target_p226_007.wav" type="audio/wav"></audio>
-                          </td>
-
-                          <td><p>AutoVC<br><br></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/autovc_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>VoiceMixer<br><br></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/vm_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>Speech Resynthesis<br><br></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/SR_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><p>DiffVC <br> (6 iter.) </p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/diffvc6_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>DiffVC <br> (30 iter.) </p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/diffvc30_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>
-                        <tr>
-                          <td><p><strong>DDDM-VC <br> (Small, 6 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/dddmvc_s_6_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p><strong>DDDM-VC <br> (Small, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/dddmvc_s_30_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>
-                        <tr>
-                          <td><p><strong>DDDM-VC <br> (Base, 6 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/dddmvc_b_6_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p><strong>DDDM-VC <br> (Base, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/dddmvc_b_30_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>
-                        <tr>
-                          <td><p><strong>DDDM-VC <br> (Fine-tuning, 6 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/dddmvc_ft_6_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p><strong>DDDM-VC <br> (Fine-tuning, 30 iter.) </strong></p>
-                            <audio id="player" controls><source src="audio/zeroshot/sample2/dddmvc_ft_30_p236_004_to_p226_007.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                        </tr>                  
-                      </tbody>
-                    </table>
-                  </div>
-                </div> 
-            </div>
-        </section>
-
-        <section class="page-section bg-primary text-white mb-0" id="zero_crosslingual">
-          <div class="container">
-            <div class="text-center">
-              <h2 class="page-section-heading d-inline-block">Zero-shot Cross-lingual Voice Conversion</h2>
-              <p class="pre-wrap lead">Unseen language from the CSS10 multi-lingual dataset</p>
-            </div>
-          
-            <div class="divider-custom divider-light">
-              </div>
-          
-            <div class="row">
-                <div class="col-lg-12 ml-auto">
-                  <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                    <thead><tr>
-                      <th style="width: 33%">Source Speaker</th>
-                      <th style="width: 33%">Target Speaker</th>
-                      <th style="width: 33%">Converted</th>
-                      <th style="width: 1%"></th>
-                    </tr></thead>
-                      
-                  <tbody>
-                    <tr>
-                      <td rowspan="1" style="vertical-align: top;"><p> French </p>
-                        <audio id="player" controls ><source src="audio/crosslingual/French/lupincontresholme_3153.wav" type="audio/wav"></audio>
-                      </td>
-                      <td rowspan="1" style="vertical-align: top;"><p> Hungarian </p>
-                        <audio id="player" controls><source src="audio/crosslingual/French/egri_csillagok_4514.wav" type="audio/wav"></audio>
-                      </td>
-                      <td><p><strong>DDDM-VC</strong></p>
-                        <audio id="player" controls><source src="audio/crosslingual/French/lupincontresholme_3153_to_egri_csillagok_4514.wav" type="audio/wav"></audio>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td rowspan="1" style="vertical-align: top;"><p> French </p>
-                        <audio id="player" controls ><source src="audio/crosslingual/French/lupincontresholme_3153.wav" type="audio/wav"></audio>
-                      </td>
-                      <td rowspan="1" style="vertical-align: top;"><p> Greek </p>
-                        <audio id="player" controls><source src="audio/crosslingual/French/Paramythi_horis_onoma_1843.wav" type="audio/wav"></audio>
-                      </td>
-                      <td><p><strong>DDDM-VC</strong></p>
-                        <audio id="player" controls><source src="audio/crosslingual/French/lupincontresholme_3153_to_Paramythi_horis_onoma_1843.wav" type="audio/wav"></audio>
-                      </td><td></td>
-                    </tr>
-                  </tbody>
-                  </table>
-              </div>           
-            </div>
-
-            <div class="row">
-              <div class="col-lg-12 ml-auto">
-                <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                  <thead><tr>
-                    <th style="width: 33%">Source Speaker</th>
-                    <th style="width: 33%">Target Speaker</th>
-                    <th style="width: 33%">Converted</th>
-                    <th style="width: 1%"></th>
-                  </tr></thead>
-                    
-                <tbody>
-                  <tr>
-                    <td rowspan="1" style="vertical-align: top;"><p> Finnish </p>
-                      <audio id="player" controls ><source src="audio/crosslingual/Finnish/salmelan_heinatalkoot_1055.wav" type="audio/wav"></audio>
-                    </td>
-                    <td rowspan="1" style="vertical-align: top;"><p> Dutch </p>
-                      <audio id="player" controls><source src="audio/crosslingual/Finnish/20000_mijlen_6494.wav" type="audio/wav"></audio>
-                    </td>
-                    <td><p><strong>DDDM-VC</strong></p>
-                      <audio id="player" controls><source src="audio/crosslingual/Finnish/salmelan_heinatalkoot_1055_to_20000_mijlen_6494.wav" type="audio/wav"></audio>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td rowspan="1" style="vertical-align: top;"><p> Finnish </p>
-                      <audio id="player" controls ><source src="audio/crosslingual/Finnish/salmelan_heinatalkoot_1055.wav" type="audio/wav"></audio>
-                    </td>
-                    <td rowspan="1" style="vertical-align: top;"><p> Russsian </p>
-                      <audio id="player" controls><source src="audio/crosslingual/Finnish/shortstories_childrenadults_3882.wav" type="audio/wav"></audio>
-                    </td>
-                    <td><p><strong>DDDM-VC</strong></p>
-                      <audio id="player" controls><source src="audio/crosslingual/Finnish/salmelan_heinatalkoot_1055_to_shortstories_childrenadults_3882.wav" type="audio/wav"></audio>
-                    </td><td></td>
-                  </tr>
-                </tbody>
-                </table>
-            </div>           
+      <div class="row">
+        <div class="col-lg-1 ">
+          <center></center>
           </div>
+      </div><br>
 
-          <div class="row">
-              <div class="col-lg-12 ml-auto">
-                <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                  <thead><tr>
-                    <th style="width: 33%">Source Speaker</th>
-                    <th style="width: 33%">Target Speaker</th>
-                    <th style="width: 33%">Converted</th>
-                    <th style="width: 1%"></th>
-                  </tr></thead>
-                    
-                <tbody>
-                  <tr>
-                    <td rowspan="1" style="vertical-align: top;"><p> Russian </p>
-                      <audio id="player" controls ><source src="audio/crosslingual/Ru/shortstories_childrenadults_3882.wav" type="audio/wav"></audio>
-                    </td>
-                    <td rowspan="1" style="vertical-align: top;"><p> Dutch </p>
-                      <audio id="player" controls><source src="audio/crosslingual/Ru/20000_mijlen_6493.wav" type="audio/wav"></audio>
-                    </td>
-                    <td><p><strong>DDDM-VC</strong></p>
-                      <audio id="player" controls><source src="audio/crosslingual/Ru/shortstories_childrenadults_3882_to_20000_mijlen_6493.wav" type="audio/wav"></audio>
-                    </td>
-                  </tr>
+    <div class="row">
+      <center>
+      <span style="font-weight: bold;font-size:35px">Abstract</span>
+        <hr width="100%">
+        <div style="text-align:justify;font-size:30px">
+          <p>
+            Diffusion-based generative models have exhibited powerful generative performance in recent years. 
+            However, as many attributes exist in the data distribution and owing to several limitations of sharing the model parameters across all levels of the generation process, 
+            it remains challenging to control specific styles for each attribute. 
+            To address the above problem, this paper presents decoupled denoising diffusion models (DDDMs) with disentangled representations, which can control the style for each attribute in generative models. 
+            We apply DDDMs to voice conversion (VC) tasks to address the challenges of disentangling and controlling each speech attribute (e.g., linguistic information, intonation, and timbre). 
+            First, we use a self-supervised representation to disentangle the speech representation. 
+            Subsequently, the DDDMs are applied to resynthesize the speech from the disentangled representations for denoising with respect to each attribute. 
+            Moreover, we also propose the prior mixup for robust voice style transfer, which uses the converted representation of the mixed style as a prior distribution for the diffusion models. 
+            The experimental results reveal that our method outperforms publicly available VC models. 
+            Furthermore, we show that our method provides robust generative performance regardless of the model size. 
+        </div>
+        </center>
+    </div><br><br>
 
-                  <tr>
-                    <td rowspan="1" style="vertical-align: top;"><p> Russian </p>
-                      <audio id="player" controls ><source src="audio/crosslingual/Ru/shortstories_childrenadults_3882.wav" type="audio/wav"></audio>
-                    </td>
-                    <td rowspan="1" style="vertical-align: top;"><p> French </p>
-                      <audio id="player" controls><source src="audio/crosslingual/Ru/lupincontresholme_3154.wav" type="audio/wav"></audio>
-                    </td>
-                    <td><p><strong>DDDM-VC</strong></p>
-                      <audio id="player" controls><source src="audio/crosslingual/Ru/shortstories_childrenadults_3882_to_lupincontresholme_3154.wav" type="audio/wav"></audio>
-                    </td><td></td>
-                  </tr>
-                </tbody>
-                </table>
-            </div>           
+<div class="row">
+  <span style="font-weight: bold;font-size:35px">Model Architecture</span>
+  <hr width="100%"></center>
+  <div class="col-lg-10 col-lg-offset-1 centered">
+    <img src="assets/dddm_vc_project.png" width="100%" alt="Responsive image">
+</div></div>
+<br> <em>Overall framework of DDDM-VC</em><br><br>
+
+<section class="section" style="background-color:#8b8bc981">
+    <div class="columns is-centered has-text-centered">
+      <div style="width:100%;">
+        <div style="float:left; width:45%;">
+          <p style="font-size:25px">Filter Denoiser</p>
+          <div class="content has-text-justified">
+            <img src="assets/ftr_dec.gif" style="max-width: 100%; height: 100%;"> 
           </div>
+          <p> Filter attribute denoising process </p>  
+        </div>
+        <div style="float:right; width:45%;">
+          <p style="font-size:25px">Source Denoiser</p> 
+          <div class="content has-text-justified">
+            <img src="assets/src_dec.gif" style="max-width: 100%; height: 100%;"> 
+          </div> 
+          <p> Source attribute denoising process </p>
+        </div>
+      </div>  
+    </div>     
+</section>
 
-          <div class="row">
-            <div class="col-lg-12 ml-auto">
-              <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                <thead><tr>
-                  <th style="width: 33%">Source Speaker</th>
-                  <th style="width: 33%">Target Speaker</th>
-                  <th style="width: 33%">Converted</th>
-                  <th style="width: 1%"></th>
-                </tr></thead>
-                  
-              <tbody>
-                <tr>
-                  <td rowspan="1" style="vertical-align: top;"><p> Spanish </p>
-                    <audio id="player" controls ><source src="audio/crosslingual/Spanish/batalla_arapiles_4596.wav" type="audio/wav"></audio>
-                  </td>
-                  <td rowspan="1" style="vertical-align: top;"><p> French </p>
-                    <audio id="player" controls><source src="audio/crosslingual/Spanish/lupincontresholme_3153.wav" type="audio/wav"></audio>
-                  </td>
-                  <td><p><strong>DDDM-VC</strong></p>
-                    <audio id="player" controls><source src="audio/crosslingual/Spanish/batalla_arapiles_4596_to_lupincontresholme_3153.wav" type="audio/wav"></audio>
-                  </td>
-                </tr>
+<div class="row">
+  <div class="col-lg-1 ">
+    <center></center>
+    </div>
+</div><br>  
+<div class="row">
+  <span style="font-weight: bold;font-size:35px">Other application of DDDMs</span>
+  <hr width="100%"></center>
+  <div class="col-lg-10 col-lg-offset-1 centered"> 
+</div></div>
+ 
+ 
+<div class="row">
+  <div class="col-lg-1 ">
+    <center></center>
+    </div>
+</div><br>  
+<div class="row">
+  <span style="font-weight: 600;font-size:35px"><a href="https://dddm-vc.github.io/demo/#dddm_tts" target="_blank"  style="color: #DA206D">DDDM-TTS</a></span>
+  <hr width="100%"></center>
+  <div class="col-lg-10 col-lg-offset-1 centered">
+    <img src="assets/dddm_tts.png" width="100%" alt="Responsive image">
+</div></div> 
+<br><em>Overall framework of DDDM-TTS</em><br><br>
+<div style="text-align:justify;font-size:30px">
+<p>
+  For a practical application, we have experimented with an extension version of DDDM-VC for a text-to-speech system.
+  In DDDM-VC, our goal is to train the model without any text transcripts, and only utilize the self-supervised representation for speech disentanglement. 
+  Based on the DDDM-VC, we train the text-to-vec (TTV) model which can generate the self-supervised speech representation 
+  (the representation from the middle layer of XLS-R) from the text as a content representation. 
+    We jointly train the duration predictor and pitch predictor. The predicted content and pitch representation 
+    are fed to DDDM-VC instead of each representation from the waveform to synthesize the speech. Hence, we could synthesize 
+    the speech from text by utilizing the pre-trained DDDM-VC. 
+</div>
 
-                <tr>
-                  <td rowspan="1" style="vertical-align: top;"><p> Spanish </p>
-                    <audio id="player" controls ><source src="audio/crosslingual/Spanish/batalla_arapiles_4596.wav" type="audio/wav"></audio>
-                  </td>
-                  <td rowspan="1" style="vertical-align: top;"><p> Russian </p>
-                    <audio id="player" controls><source src="audio/crosslingual/Spanish/shortstories_childrenadults_3882.wav" type="audio/wav"></audio>
-                  </td>
-                  <td><p><strong>DDDM-VC</strong></p>
-                    <audio id="player" controls><source src="audio/crosslingual/Spanish/batalla_arapiles_4596_to_shortstories_childrenadults_3882.wav" type="audio/wav"></audio>
-                  </td><td></td>
-                </tr>
-                </tbody>
-                </table>
-              </div>           
-            </div>
 
-            <div class="row">
-              <div class="col-lg-12 ml-auto">
-                <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                  <thead><tr>
-                    <th style="width: 33%">Source Speaker</th>
-                    <th style="width: 33%">Target Speaker</th>
-                    <th style="width: 33%">Converted</th>
-                    <th style="width: 1%"></th>
-                  </tr></thead>
-                    
-                <tbody>
-                  <tr>
-                    <td rowspan="1" style="vertical-align: top;"><p> German </p>
-                      <audio id="player" controls ><source src="audio/crosslingual/German/serapionsbruederauswahl_1717.wav" type="audio/wav"></audio>
-                    </td>
-                    <td rowspan="1" style="vertical-align: top;"><p> French </p>
-                      <audio id="player" controls><source src="audio/crosslingual/German/Paramythi_horis_onoma_1842.wav" type="audio/wav"></audio>
-                    </td>
-                    <td><p><strong>DDDM-VC</strong></p>
-                      <audio id="player" controls><source src="audio/crosslingual/German/serapionsbruederauswahl_1717_to_Paramythi_horis_onoma_1842.wav" type="audio/wav"></audio>
-                    </td>
-                  </tr>
-  
-                  <tr>
-                    <td rowspan="1" style="vertical-align: top;"><p> German </p>
-                      <audio id="player" controls ><source src="audio/crosslingual/German/serapionsbruederauswahl_1717.wav" type="audio/wav"></audio>
-                    </td>
-                    <td rowspan="1" style="vertical-align: top;"><p> Dutch </p>
-                      <audio id="player" controls><source src="audio/crosslingual/German/20000_mijlen_6493.wav" type="audio/wav"></audio>
-                    </td>
-                    <td><p><strong>DDDM-VC</strong></p>
-                      <audio id="player" controls><source src="audio/crosslingual/German/serapionsbruederauswahl_1717_to_20000_mijlen_6493.wav" type="audio/wav"></audio>
-                    </td><td></td>
-                  </tr>
-                  </tbody>
-                  </table>
-                </div>           
-              </div>
-          </div>
-        </section>
-               
-        <section class="page-section bg-info text-white mb-0" id="ablation">
-          <div class="container">
-            <div class="text-center">
-              <h2 class="page-section-heading d-inline-block">Ablation study</h2>
-              <p class="pre-wrap lead"> Many-to-many VC tasks with seen speaker from the LibriTTS dataset</p>
-            </div>
+ 
+<div class="row">
+  <div class="col-lg-1 ">
+    <center></center>
+    </div>
+</div><br>  
+<div class="row">
+  <span style="font-weight: 600;font-size:35px"><a href="https://dddm-vc.github.io/demo/#audio_mixer" target="_blank" style="color: #DA206D">DDDM-Mixer</a></span>
+  <hr width="100%"></center>
+  <div class="col-lg-10 col-lg-offset-1 centered">
+    <img src="assets/dddm_mixer.png" width="100%" alt="Responsive image">
+</div></div>
+<br><em>Overall framework of DDDM-Mixer</em><br><br>
+<div style="text-align:justify;font-size:30px">
+<p>
+  We extend DDDMs to DDDM-Mixer which leverages multiple denoisers to mix the sound and speech into 
+  the mixture of Mel-spectrograms by blending them with the desired balance. 
+  While DDDM-VC disentangles a single speech into source and filter attributes for attribute denoisers, 
+  DDDM-Mixer treats the mixture of audio as a target audio and disentangles it into sound and speech as attributes. 
+  We utilize the data augmentation according to signal-to-noise ratio (SNR) from -5 dB to 25 dB for target audio. 
+  DDDM-Mixer utilizes the Mel-spectrogram of each attribute as a prior. 
+  We employ two denoisers, both of which remove a single noise in terms of their own attribute (sound and speech). 
+  We utilize an SNR dB between sound and speech as conditional information to mix each attribute with a desired ratio. 
+  We concatenate the SNR positional embedding with the time positional embedding for the condition. 
+  Hence, we could mix the generated sound and speech on the Mel-spectrogram. 
+  To verify the effectiveness of the DDDM-Mixer, we compare the augmented audio between vocoded sound and speech 
+  and the vocoded audio from mixed Mel-spectrogram. 
+  The evaluation results show DDDM-Mixer has better performance than audio augmentation according to SNR between the vocoded sound and speech.  
+</div>
 
-            <div class="divider-custom divider-light">
-              </div>
-          
-              <div class="row">
-                  <div class="col-lg-12 ml-auto">
-                    <table class="table table-responsive align-content-center"  style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                      <thead><tr>
-                        <th style="width: 22%"> Source Speaker </th>
-                        <th style="width: 22%"> Target Speaker</th>
-                        <th style="width: 23%"> Converted</th>
-                        <th style="width: 22%">         </th>
-                        <th style="width: 1%">         </th>
-                      </tr></thead>
-                    
-                      <tbody>
-                        <tr>
-                          <td rowspan="3" style="vertical-align: top;"><p>GT <br> 3699 (male) </p>
-                            <audio id="player" controls ><source src="audio/ablation/sample1/src_3699_47246_000011_000001.wav" type="audio/wav"></audio>
-                          </td>
-                          <td rowspan="3" style="vertical-align: top;"><p>GT <br> 3526 (female) </p>
-                            <audio id="player" controls><source src="audio/ablation/sample1/tar_3526_176653_000089_000001.wav" type="audio/wav"></audio>
-                          </td>
-                          <td style="border-right: hidden!important;"><strong>DDDM-VC<br> (Ours) </strong></p></p>
-                            <audio id="player" controls><source src="audio/ablation/sample1/base_3699_47246_000011_000001_to_3526_176653_000089_000001.wav" type="audio/wav"></audio>
-                          </td>
-                          <td></td>
-                        </tr>
-                        <!-- <td rowspan="3" style="vertical-align: top;">
-                        <td rowspan="3" style="vertical-align: top;"> -->
-                        <tr>
-                          <td ><p>w.o Prior Mixup</p>
-                            <audio id="player" controls><source src="audio/ablation/sample1/wo_mixup_3699_47246_000011_000001_to_3526_176653_000089_000001.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>w.o Disentangled Denoiser</p>
-                            <audio id="player" controls><source src="audio/ablation/sample1/wo_dd_3699_47246_000011_000001_to_3526_176653_000089_000001.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                          </tr>
-                        
-                        <tr>
-                          <td><p>w.o Normalized F0 </p>
-                            <audio id="player" controls><source src="audio/ablation/sample1/wo_F0_3699_47246_000011_000001_to_3526_176653_000089_000001.wav" type="audio/wav"></audio>
-                          </td>
-                          <td><p>w.o Data-driven Prior </p>
-                            <audio id="player" controls><source src="audio/ablation/sample1/wo_prior_3699_47246_000011_000001_to_3526_176653_000089_000001.wav" type="audio/wav"></audio>
-                          </td><td></td>
-                          </tr>
-                      </tbody>
-                      <tbody>
-                        <tr>
-                        <td rowspan="3" style="vertical-align: top;"><p> GT <br> 1603 (male) </p>
-                          <audio id="player" controls ><source src="audio/ablation/sample2/src_1603_140931_000062_000000.wav " type="audio/wav"></audio>
-                        </td>
-                        <td rowspan="3" style="vertical-align: top;"><p> GT <br> 1571 (male) </p>
-                          <audio id="player" controls><source src="audio/ablation/sample2/tar_1571_141320_000065_000006.wav" type="audio/wav"></audio>
-                        </td>
 
-                        <td><strong>DDDM-VC<br> (Ours) </strong></p></p>
-                          <audio id="player" controls><source src="audio/ablation/sample2/base_1603_140931_000062_000000_to_1571_141320_000065_000006.wav" type="audio/wav"></audio>
-                        </td>
-                        <td></td>
-                      </tr>
 
-                      <tr>
-                        <td><p>w.o Prior Mixup</p>
-                          <audio id="player" controls><source src="audio/ablation/sample2/wo_mixup_1603_140931_000062_000000_to_1571_141320_000065_000006.wav" type="audio/wav"></audio>
-                        </td>
-                        <td><p>w.o Disentangled Denoiser</p>
-                          <audio id="player" controls><source src="audio/ablation/sample2/wo_dd_1603_140931_000062_000000_to_1571_141320_000065_000006.wav" type="audio/wav"></audio>
-                        </td><td></td>
-                      </tr>
-                      
-                      <tr>
-                        <td><p>w.o Normalized F0 </p>
-                          <audio id="player" controls><source src="audio/ablation/sample2/wo_F0_1603_140931_000062_000000_to_1571_141320_000065_000006.wav" type="audio/wav"></audio>
-                        </td>
-                        <td><p>w.o Data-driven Prior </p>
-                          <audio id="player" controls><source src="audio/ablation/sample2/wo_prior_1603_140931_000062_000000_to_1571_141320_000065_000006.wav" type="audio/wav"></audio>
-                        </td><td></td>
-                        </tr>
-                    </tbody>
-                    
-                    <tbody>
-                      <tr>
-                        <td rowspan="3" style="vertical-align: top;"><p>  GT <br> 3440 (female) </p>
-                          <audio id="player" controls ><source src="audio/ablation/sample3/src_3440_171009_000143_000000.wav" type="audio/wav"></audio>
-                        </td>
-                        <td rowspan="3" style="vertical-align: top;"><p> GT  <br> 1639 (male) </p>
-                          <audio id="player" controls><source src="audio/ablation/sample3/tar_1639_133290_000008_000004.wav" type="audio/wav"></audio>
-                        </td>
-  
-                        <td><strong>DDDM-VC<br> (Ours) </strong></p></p>
-                          <audio id="player" controls><source src="audio/ablation/sample3/base_3440_171009_000143_000000_to_1639_133290_000028_000004.wav" type="audio/wav"></audio>
-                        </td>
-                        <td></td>
-                      </tr>
-  
-                      <tr>
-                        <td><p>w.o Prior Mixup</p>
-                          <audio id="player" controls><source src="audio/ablation/sample3/wo_mixup_3440_171009_000143_000000_to_1639_133290_000028_000004.wav" type="audio/wav"></audio>
-                        </td>
-                        <td><p>w.o Disentangled Denoiser</p>
-                          <audio id="player" controls><source src="audio/ablation/sample3/wo_dd_3440_171009_000143_000000_to_1639_133290_000028_000004.wav" type="audio/wav"></audio>
-                        </td><td></td>
-                      </tr>
-                      
-                      <tr>
-                        <td><p>w.o Normalized F0 </p>
-                          <audio id="player" controls><source src="audio/ablation/sample3/wo_F0_3440_171009_000143_000000_to_1639_133290_000028_000004.wav" type="audio/wav"></audio>
-                        </td>
-                        <td><p>w.o Data-driven Prior </p>
-                          <audio id="player" controls><source src="audio/ablation/sample3/wo_prior_3440_171009_000143_000000_to_1639_133290_000028_000004.wav" type="audio/wav"></audio>
-                        </td><td></td>
-                        </tr>
-                    </tbody>
-                    </table>
-                  </div>
-                </div> 
-            </div>
-        </section>
+<div class="row">
+  <div class="col-lg-4 ">
+    <center></center>
+    </div>
+</div><br>
+<div class="row">
+  <div class="col-lg-4 ">
+    <center></center>
+    </div>
+</div><br>
 
-        <section class="page-section bg-primary text-white mb-0" id="control">
-          <div class="container">
-            <div class="text-center">
-              <h2 class="page-section-heading d-inline-block">Additional Experiments</h2>
-            </div>
-          
-            <div class="divider-custom divider-light">
-              </div>
-            
-              <div class="row">
-                <div class="col-lg-12 ml-auto">
-                  <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                    <thead><tr>
-                      <th style="width: 33%">Source Speaker</th>
-                      <th style="width: 33%">Target Speaker</th>
-                      <th style="width: 33%; color: rgb(7, 128, 67)">Pitch Control in VC scenario</th>
-                      <th style="width: 1%"></th>
-                    </tr></thead>
-                      
-                  <tbody>
-                    <tr>
-                      <td rowspan="3" style="vertical-align: top;"><p> p225_007 </p>
-                        <audio id="player" controls ><source src="audio/control/p225_007.wav" type="audio/wav"></audio>
-                      </td>
-                      <td rowspan="3" style="vertical-align: top;"><p> p226_007 </p>
-                        <audio id="player" controls><source src="audio/control/p226_007.wav" type="audio/wav"></audio>
-                      </td>
-                      <td><p><strong> Converted sample #1 </strong></p>
-                        <audio id="player" controls><source src="audio/control/vc_src.wav" type="audio/wav"></audio>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><p><strong> Converted sample #2 </strong></p>
-                        <audio id="player" controls><source src="audio/control/vc_tar.wav" type="audio/wav"></audio>
-                      </td><td></td>
-                    </tr>
-                    <tr>
-                      <td><p><strong> Converted sample #3 </strong></p>
-                        <audio id="player" controls><source src="audio/control/vc_tar_14.wav" type="audio/wav"></audio>
-                      </td><td></td>
-                    </tr>
-                  </tbody>
-                  </table>
-              </div>           
-            </div>
-            
-            <div class="row">
-              <div class="col-lg-12 ml-auto">
-                <table class="table table-responsive align-content-center" style="background-color: rgba(255, 255, 255, 0.993); border-radius: 20px">
-                  <tr>
-                    <th style="width: 20%"> Source Speaker </th>
-                    <th style="width: 20%"> Target Speaker </th>
-                    <th style="width: 20%"> Filter </th>
-                    <th style="width: 20%"> Source </th>
-                    <th style="width: 20%; color: rgba(5, 10, 54, 0.795)"> Method </th>
 
-                  </tr> 
-                    
-                <tbody>
-                  <tr>
-                    <td rowspan="1" style="vertical-align: top;"><p> p232 (VCTK) </p>
-                      <audio id="player" controls ><source src="audio/control/p232_003.wav" type="audio/wav"></audio>
-                    </td>
-                    <td rowspan="1" style="vertical-align: top;"><p> p232 (VCTK) </p>
-                      <audio id="player" controls><source src="audio/control/p232_003.wav" type="audio/wav"></audio>
-                    </td>
-                    <td><p><center>Source spk emb</center></p></td>
-                    <td><p><center>Source spk emb</center></p></td>
-                    <td><p><strong> Resynthesis </strong></p>  
-                      <audio id="player" controls><source src="audio/control/Resyn.wav" type="audio/wav"></audio>
-                    </td><td></td>
-                  </tr>
-                  <tr>
-                    <td rowspan="3" style="vertical-align: top;"><p> p232 (VCTK) </p>
-                      <audio id="player" controls ><source src="audio/control/p232_003.wav" type="audio/wav"></audio>
-                    </td>
-                    <td rowspan="3" style="vertical-align: top;"><p> p231 (VCTK) </p>
-                      <audio id="player" controls><source src="audio/control/p231_015.wav" type="audio/wav"></audio>
-                    </td>
-                    <td><p><center>Target spk emb</center></p></td>
-                    <td><p><center>Target spk emb</center></p></td>
-                    <td><p><strong> Voice conversion </strong></p>  
-                      <audio id="player" controls><source src="audio/control/VC.wav" type="audio/wav"></audio>
-                    </td><td></td>
-                  </tr>
-                  <tr>
-                    <td><p><center>Target spk emb</center></p></td>
-                    <td><p><center>Source spk emb</center></p></td>
-                    <td><p><strong> Timbre control </strong></p>  
-                      <audio id="player" controls><source src="audio/control/TC.wav" type="audio/wav"></audio>
-                    </td><td></td>
-                  </tr>
-                  <tr>
-                    <td><p><center>Source spk emb</center></p></td>
-                    <td><p><center>Target spk emb</center></p></td>
-                    <td><p><strong> Pitch control </strong></p>  
-                      <audio id="player" controls><source src="audio/control/PC.wav" type="audio/wav"></audio>
-                    </td><td></td>
-                  </tr> 
-                </tbody>
-                </table>
-              </div>           
-            </div>
 
-            
-          </div>
-        </section>
 
-        <div class="scroll-to-top d-lg-none position-fixed"><a class="js-scroll-trigger d-block text-center text-white rounded" href="#page-top"><i class="fa fa-chevron-up"></i></a></div>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-        
-        <!-- Third party plugin JS-->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-        <script src="js/scripts.js"></script>
-        
-        <!-- Bootstrap slider JavaScript -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js" integrity="sha512-f0VlzJbcEB6KiW8ZVtL+5HWPDyW1+nJEjguZ5IVnSQkvZbwBt2RfCBY0CBO1PsMAqxxrG4Di6TfsCPP3ZRwKpA==" crossorigin="anonymous"></script>
+<script src="../js/bootstrap.min.js" type="text/javascript"></script>
 
-        <!-- slider JS -->
-        <script type="text/javascript">
-        </script>
-    </body>
-</html>
-
-<style>
-
-  .noborder{
-          border: none!important;
+  <style type="text/css">
+    .layered-paper-big {
+      box-shadow:
+        0px 0px 1px 1px rgba(0, 0, 0, 0.35),
+        5px 5px 0 0px #fff,
+        5px 5px 1px 1px rgba(0, 0, 0, 0.35),
+        10px 10px 0 0px #fff,
+        10px 10px 1px 1px rgba(0, 0, 0, 0.35),
+        15px 15px 0 0px #fff,
+        15px 15px 1px 1px rgba(0, 0, 0, 0.35),
+        20px 20px 0 0px #fff,
+        20px 20px 1px 1px rgba(0, 0, 0, 0.35),
+        25px 25px 0 0px #fff,
+        25px 25px 1px 1px rgba(0, 0, 0, 0.35);
+      margin-left: 10px;
+      margin-right: 45px;
     }
-  .grid-image {
-      display:flex;
-      flex-wrap:wrap;
-      align-items:flex-start;
-      margin:30px 0;
-  }
-  .grid-image img {
-      width:calc(33.333% - 10px);
-      margin:0 15px 15px 0;
-  }
-  .grid-image img:nth-of-type(3n),
-  .grid-image img:last-child {
-      margin-right:0;
-  }
-  @media screen and (max-width:640px){
-    .grid-image img {
-      width:calc(50% - 15px);
+
+    .layered-paper {
+      box-shadow:
+        0px 0px 1px 1px rgba(0, 0, 0, 0.35),
+        5px 5px 0 0px #fff,
+        5px 5px 1px 1px rgba(0, 0, 0, 0.35),
+        10px 10px 0 0px #fff,
+        10px 10px 1px 1px rgba(0, 0, 0, 0.35);
+      margin-top: 5px;
+      margin-left: 10px;
+      margin-right: 30px;
+      margin-bottom: 5px;
     }
-  }
-  @media screen and (max-width:480px){
-    .grid-image img:nth-of-type(2n) {
-      margin-right:0;
-    }
-    .grid-image img:nth-of-type(3n) {
-      margin-right:15px;
-    }
-  }
   </style>
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: { inlineMath: [['$$', '$$']], displayMath: [['$$$', '$$$']] }
+        });
+    </script>
+    <script src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+<script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="d5da7a36741738a7ea3dbd4d-|49" defer=""></script></body>
+</html>

@@ -1,2 +1,1 @@
-## DDDM-VC demo page
-
+## DDDM-VC
